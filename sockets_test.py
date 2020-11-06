@@ -1,9 +1,15 @@
-from peer_socket import PeerSocket
+from time import sleep
+from sockets import gethostname, Receiver, Sender
 
-s1 = PeerSocket(36258, 36259)
-s2 = PeerSocket(36260, 36261)
+receiver = Receiver(36258, listener=lambda m: print(f"s1 received: '{m.decode('utf-8')}'"))
+receiver.start()
+sender = Sender(gethostname(), 36258)
+sender.start()
 
-print("connecting s1 to s2!")
-s1.connect(s2.host, s2.port_in, s2.port_out)
-print("connecting s2 to s1!")
-s2.connect(s1.host, s1.port_in, s1.port_out)
+for i in range(10):
+    sender.send_string(f"i={i}")
+    
+sleep(2)
+receiver.stop()
+sender.stop()
+exit()
